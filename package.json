@@ -1,0 +1,25 @@
+{
+  "name": "com.smallembergames.timemanagementstore",
+  "version": "0.0.0",
+  "displayName": "TimeManagementStore",
+  "description": "A package with a time management game",
+  "unity": "6000.2",
+  "unityRelease": "6f2",
+  "documentationUrl": "",
+  "changelogUrl": "",
+  "licensesUrl": "",
+  "dependencies": {
+   
+ },
+ "keywords": [
+    "TimeManagementStore",
+    "Diner Dash",
+    "Time Management",
+    "Restaurant"
+  ],
+  "author": {
+    "name": "Small Ember Games",
+    "email": "smallembergames@gmail.com",
+    "url": ""
+  }
+}
