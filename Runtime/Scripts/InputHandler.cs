@@ -15,14 +15,28 @@ public class InputHandler : MonoBehaviour
     {
         if (!context.started)
         {
-            Debug.Log($"Mouse position return;");
             return;
         }
 
         Vector3 mousePosition = Mouse.current.position.ReadValue();
-        Vector3 worldPosition = _mainCamera.ScreenToWorldPoint( mousePosition );
-        Debug.Log($"Mouse position {worldPosition}");
-        m_playerMovement.MoveToMousePosition(worldPosition);
+        RaycastHit2D rayHit = Physics2D.GetRayIntersection(_mainCamera.ScreenPointToRay(mousePosition));
+
+        if (!rayHit) 
+        {
+            return;
+        }
+
+        if (rayHit.collider.gameObject.TryGetComponent<ClickableObject>(out ClickableObject clickableObject))
+        {
+            if (clickableObject.gameObject.TryGetComponent<FirstSpot>(out FirstSpot firstSpot))
+            {
+                if (!firstSpot.HasCustomer)
+                {
+                    return;
+                }
+            }
+            m_playerMovement.MoveToMousePosition(clickableObject);
+        }
     }
 
 }
