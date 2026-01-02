@@ -52,6 +52,7 @@ public class InventoryUI : MonoBehaviour
         Slot newSlot = Instantiate(m_inventorySlot, m_rectTransform);
         newSlot.SetObject(pickupObject, this);
         m_inventorySlots.Add(newSlot);
+        Debug.Log("AddObject UI");
     }
 
     public void RemoveSlot(PickupObject obj)

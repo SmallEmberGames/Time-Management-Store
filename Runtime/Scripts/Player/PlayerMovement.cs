@@ -7,6 +7,7 @@ public class PlayerMovement : MonoBehaviour
     private List<WalkingPoint> m_walkingPointsList;
     private NavMeshAgent m_agent;
     private bool m_walking;
+    private bool m_action;
 
     public struct WalkingPoint
     {
@@ -44,6 +45,7 @@ public class PlayerMovement : MonoBehaviour
         {
             m_walking = false;
             //Do action at that position and start walking again if there is another walking point
+            m_action = true;
             m_walkingPointsList[0].clickable.Action(this);
             m_walkingPointsList.RemoveAt(0);
             return;
@@ -54,8 +56,9 @@ public class PlayerMovement : MonoBehaviour
 
     public void StartWalking()
     {
-        if (m_walkingPointsList == null || m_walkingPointsList.Count == 0)
+        if (m_walkingPointsList.Count == 0)
         {
+            m_action = false;
             return;
         }
 
@@ -72,6 +75,12 @@ public class PlayerMovement : MonoBehaviour
         Vector3 moveToPosition = clickableObject.MoveToPosition;
         Vector2 walkingPoint = new Vector2(moveToPosition.x, moveToPosition.y);
         m_walkingPointsList.Add(new WalkingPoint(walkingPoint, clickableObject));
-        m_walking = true;
+
+        if (!m_walking && !m_action)
+        {
+            m_walking = true;
+        }
+
+
     }
 }

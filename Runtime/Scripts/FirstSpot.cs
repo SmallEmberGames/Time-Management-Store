@@ -36,5 +36,7 @@ public class FirstSpot : ClickableObject
                 m_playerInventory.RemoveObject(customerOrders[i]);
             }
         }
+
+        base.Action(playerMovement);
     }
 }

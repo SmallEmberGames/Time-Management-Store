@@ -42,7 +42,6 @@ public class PlayerInventory : MonoBehaviour
     public void AddObject(PickupObject obj)
     {
         m_inventoryObjects.Add(obj);
-        //TODO add visually
         m_inventoryUI.AddObject(obj);
     }
 
@@ -55,6 +54,7 @@ public class PlayerInventory : MonoBehaviour
             if (m_inventoryObjects[i] == obj)
             {
                 m_inventoryObjects.RemoveAt(i);
+                m_currentSlotsTaken--;
                 break;
             }
         }

@@ -42,6 +42,7 @@ public class PickupObject : ClickableObject
     {
         yield return new WaitForSeconds(2); //For an pickup animation put get the animation and use the animation time here to wait for the animation to be done
         m_inventory.AddObject(this);
+        Debug.Log("playerMovement");
         base.Action(playerMovement);
     }
 }
