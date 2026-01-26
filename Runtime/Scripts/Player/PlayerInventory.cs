@@ -8,12 +8,12 @@ public class PlayerInventory : MonoBehaviour
     [SerializeField] private InventoryUI m_inventoryUI;
     [SerializeField] private int m_inventorySlots;
 
-    private List<PickupObject> m_inventoryObjects = new List<PickupObject>();
-    private int m_currentSlotsTaken;
+    private List<PickupObject> _inventoryObjects = new List<PickupObject>();
+    private int _currentSlotsTaken;
 
     public PickupObject[] InventoryObjects
     {
-        get { return m_inventoryObjects.ToArray(); }
+        get { return _inventoryObjects.ToArray(); }
     }
 
     public int InventorySlots
@@ -24,16 +24,15 @@ public class PlayerInventory : MonoBehaviour
     private void Awake()
     {
         Instance = this;
-        //TODO: Set inventory spaces for the slots
         m_inventoryUI.SetSlots(m_inventorySlots);
     }
 
     public bool IsInventoryFull()
     {
-        bool isInventoryFull = m_currentSlotsTaken == m_inventorySlots;
+        bool isInventoryFull = _currentSlotsTaken == m_inventorySlots;
         if (!isInventoryFull)
         {
-            m_currentSlotsTaken++;
+            _currentSlotsTaken++;
         }
 
         return isInventoryFull;
@@ -41,7 +40,7 @@ public class PlayerInventory : MonoBehaviour
 
     public void AddObject(PickupObject obj)
     {
-        m_inventoryObjects.Add(obj);
+        _inventoryObjects.Add(obj);
         m_inventoryUI.AddObject(obj);
     }
 
@@ -49,12 +48,12 @@ public class PlayerInventory : MonoBehaviour
     {
         m_inventoryUI.RemoveSlot(obj);
 
-        for (int i = 0; i < m_inventoryObjects.Count; i++)
+        for (int i = 0; i < _inventoryObjects.Count; i++)
         {
-            if (m_inventoryObjects[i] == obj)
+            if (_inventoryObjects[i] == obj)
             {
-                m_inventoryObjects.RemoveAt(i);
-                m_currentSlotsTaken--;
+                _inventoryObjects.RemoveAt(i);
+                _currentSlotsTaken--;
                 break;
             }
         }

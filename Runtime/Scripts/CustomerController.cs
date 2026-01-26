@@ -1,138 +1,107 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.UI;
 
 public class CustomerController : MonoBehaviour
 {
-    [Header("OrderBubble")]
-    [SerializeField] private Canvas m_orderCanvas;
-    [SerializeField] private GridLayoutGroup m_gridLayout;
-    [SerializeField] private RawImage m_orderObject;
+    [SerializeField] private OrderBubbel m_orderBubbel;
 
-    [Header("Pay")]
-    [SerializeField] private Texture m_payTexture;
-    [SerializeField] private Color m_payColor;
+    private Vector2 _walkingPoint;
+    private NavMeshAgent _agent;
+    private bool _walking;
+    private Vector2 _startPoint;
 
-    private Vector2 m_walkingPoint;
-    private NavMeshAgent m_agent;
-    private bool m_walking;
-    private Dictionary<PickupObject, RawImage> m_orderObjects;
-    private Vector2 m_startPoint;
-    private bool m_orderComplete;
+    private Tabel _customerTabel;
+    private bool _hasPayed;
+
+    public OrderBubbel OrderBubbel
+    {
+        get { return m_orderBubbel; }
+    }
 
     private void Start()
     {
-        m_agent = GetComponent<NavMeshAgent>();
-        m_agent.updateRotation = false;
-        m_agent.updateUpAxis = false;
+        _agent = GetComponent<NavMeshAgent>();
+        _agent.updateRotation = false;
+        _agent.updateUpAxis = false;
 
-        m_startPoint = new Vector2(transform.position.x, transform.position.y);
-        m_orderCanvas.gameObject.SetActive(false);
+        _startPoint = new Vector2(transform.position.x, transform.position.y);
+        ShowOrder(false);
     }
 
     private void Update()
     {
-        if (!m_walking || m_walkingPoint == null)
+        if (!_walking || _walkingPoint == null)
         {
             return;
         }
 
         Vector2 playerPosition = transform.position;
         //If the player is at the position of the mouse click or if the player isn't moving because of and obstacle
-        if (Vector2.Distance(playerPosition, m_walkingPoint) < 0.1f)
+        if (Vector2.Distance(playerPosition, _walkingPoint) < 0.1f)
         {
-            ShowOrder(true);
-            m_walking = false;
+            if (_customerTabel != null && !_customerTabel.OrderBubbel.OrderComplete)
+            {
+                _customerTabel.CustomerIsSitting(this);
+            }
+            else
+            {
+                ShowOrder(true);
+            }
+            _walking = false;
 
-            if (m_orderComplete)
+            if (_hasPayed)
             {
                 Destroy(gameObject);
             }
             return;
         }
 
-        m_agent.SetDestination(m_walkingPoint);
+        _agent.SetDestination(_walkingPoint);
     }
 
-    public void SetWalkingPoint(Vector3 point)
+    public void SetWalkingPoint(Vector3 point, Tabel tabel = null)
     {
-        if (m_walking)
+        if (_walking)
         {
             return;
         }
 
-        m_walkingPoint = new Vector2(point.x, point.y);
-        m_walking = true;
-    }
+        _walkingPoint = new Vector2(point.x, point.y);
+        _walking = true;
 
-    public void SetOrder(PickupObject[] orderObjects)
-    {
-        m_orderObjects = new Dictionary<PickupObject, RawImage>();
-
-        for (int i = 0; i < orderObjects.Length; i++)
+        if (tabel != null)
         {
-            PickupObject pickupObject = orderObjects[i];
-            pickupObject.GetSprite(out Sprite sprite, out Color color);
-            RawImage currentOrder = null;
-            if (i == 0)
-            {
-                currentOrder = m_orderObject;
-            }
-            else
-            {
-                currentOrder = Instantiate(m_orderObject, m_gridLayout.transform);
-            }
-
-            currentOrder.texture = sprite.texture;
-            currentOrder.color = color;
-
-            m_orderObjects.Add(pickupObject, currentOrder);
+            _customerTabel = tabel;
         }
-    }
-
-    public bool ServedOrder(PickupObject orderObject)
-    {
-        if (m_orderObjects.ContainsKey(orderObject))
-        {
-            RawImage currentOrderObject = m_orderObjects[orderObject];
-
-            if (m_orderObjects.Count == 1)
-            {
-                //This is then the lost object from there order so the order is complete
-
-                //Update so it will say they need to pay first
-                currentOrderObject.texture = m_payTexture;
-                currentOrderObject.color = m_payColor;
-                m_orderComplete = true;
-                return true;
-            }
-
-            currentOrderObject.gameObject.SetActive(false);
-            m_orderObjects.Remove(orderObject);
-            return true;
-        }
-
-        return false;
     }
 
     public bool Pay()
     {
-        if (!m_orderComplete)
+        if (!m_orderBubbel.OrderComplete || _walking)
         {
             return false;
         }
 
         //Todo Give point to player for finishing order
+        _hasPayed = true;
+        if (_customerTabel != null) //If this is a tabel customer the whole table payed when 
+        {
+            _customerTabel.TabelPayed(this);
+        }
+
         ShowOrder(false);
-        SetWalkingPoint(m_startPoint);
+        SetWalkingPoint(_startPoint);
         return true;
+    }
+
+    public void hasPayed()
+    {
+        _hasPayed = true;
+        SetWalkingPoint(_startPoint);
     }
 
     private void ShowOrder(bool show)
     {
-        m_orderCanvas.gameObject.SetActive(show);
+        m_orderBubbel.gameObject.SetActive(show);
     }
 }

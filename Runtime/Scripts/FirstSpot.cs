@@ -30,7 +30,7 @@ public class FirstSpot : ClickableObject
         PickupObject[] customerOrders = m_playerInventory.InventoryObjects;
         for (int i = 0; i < customerOrders.Length; i++)
         {
-            if (m_customerController.ServedOrder(customerOrders[i]))
+            if (m_customerController.OrderBubbel.ServedOrder(customerOrders[i], out bool orderComplete))
             {
                 //The player has this order item so we can remove it from the customer order 
                 m_playerInventory.RemoveObject(customerOrders[i]);
