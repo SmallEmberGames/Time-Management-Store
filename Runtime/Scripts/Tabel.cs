@@ -60,7 +60,6 @@ public class Tabel : ClickableObject
             if (!_orderDone && orderComplete)
             {
                 _orderDone = true;
-                Debug.Log("Order tabel complete");
                 StartCoroutine(EatingTime());
             }
         }
@@ -127,7 +126,6 @@ public class Tabel : ClickableObject
     IEnumerator EatingTime()
     {
         float waitTime = Random.Range(m_randomEatingTime.x, m_randomEatingTime.y);
-        Debug.Log($"[Tabel.cs] eat time {waitTime}");
         yield return new WaitForSeconds(waitTime);
 
         //Done eating check if you can pay
@@ -138,7 +136,6 @@ public class Tabel : ClickableObject
             int randomCustomerIndex = Random.Range(0, customers.Length);
             CustomerController customer = customers[randomCustomerIndex];
 
-            Debug.Log($"[Tabel.cs] customer goes to pay {customer.name}");
             //Let them move to the spot
             Vector3 customerWalkTo = _customerLines.GetSpot(customer);
             customer.SetWalkingPoint(customerWalkTo);

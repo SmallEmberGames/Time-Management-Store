@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -12,10 +13,16 @@ public class CustomerController : MonoBehaviour
 
     private Tabel _customerTabel;
     private bool _hasPayed;
+    private Action _doneAction;
 
     public OrderBubbel OrderBubbel
     {
         get { return m_orderBubbel; }
+    }
+
+    public Action DoneAction
+    {
+        set { _doneAction = value; }
     }
 
     private void Start()
@@ -75,7 +82,7 @@ public class CustomerController : MonoBehaviour
         }
     }
 
-    public bool Pay()
+    public bool Pay(LevelManager level)
     {
         if (!m_orderBubbel.OrderComplete || _walking)
         {
@@ -89,6 +96,8 @@ public class CustomerController : MonoBehaviour
             _customerTabel.TabelPayed(this);
         }
 
+        level.AddScore();
+        _doneAction?.Invoke();
         ShowOrder(false);
         SetWalkingPoint(_startPoint);
         return true;
@@ -97,6 +106,7 @@ public class CustomerController : MonoBehaviour
     public void hasPayed()
     {
         _hasPayed = true;
+        _doneAction?.Invoke();
         SetWalkingPoint(_startPoint);
     }
 

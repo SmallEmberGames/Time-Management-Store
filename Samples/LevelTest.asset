@@ -12,10 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 59213dd0a89e88e40b1e501861becc0f, type: 3}
   m_Name: LevelTest
   m_EditorClassIdentifier: SmallEmberStudio.timemanagementstore::Level
-  customers:
-  - name: 
-    customerType: 0
-    spawnTime: 0
-  - name: 
-    customerType: 1
-    spawnTime: 0
+  oneStarGoal: 30
+  waves:
+  - spawnTimePercentage: 1
+    customerType: 00000000
+  - spawnTimePercentage: 0.95
+    customerType: 0100000000000000

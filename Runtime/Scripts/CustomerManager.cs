@@ -13,15 +13,77 @@ public class CustomerManager : MonoBehaviour
     [SerializeField] private CustomerTabels m_customerTabels;
 
     [SerializeField] private float m_timeBetweenTableCustomersSpawn;
-    [SerializeField] private Vector2 m_randomWaitTime;
+    [SerializeField] private float m_timeBetweenWaves;
 
-    void Start()
+    private List<CustomerWave> m_waveQue = new List<CustomerWave>();
+    private int m_currentActiveCustomerCount;
+    private bool m_spawningWave;
+    private bool m_canSpawn = true;
+
+    public void AddWave(CustomerWave wave)
     {
-        AddCustomer();
+        m_waveQue.Add(wave);
+
+        if (!m_spawningWave)
+        {
+            SpawnWave();
+        }
     }
 
-    private void AddCustomer()
+    public void StopSpawning()
     {
+        m_canSpawn = false;
+        if (m_currentActiveCustomerCount <= 0)
+        {
+            Debug.Log("End level");
+        }
+    }
+
+    public void RemoveCustomer()
+    {
+        m_currentActiveCustomerCount--;
+        if (!m_canSpawn && m_currentActiveCustomerCount <= 0)
+        {
+            Debug.Log("End level");
+        }
+    }
+
+    private void SpawnWave()
+    {
+        m_spawningWave = true;
+        if (m_waveQue.Count != 0 && m_canSpawn)
+        {
+            CustomerType[] customersTypes = m_waveQue[0].customerType;
+            for (int i = 0; i < customersTypes.Length; i++)
+            {
+                CustomerType customerType = customersTypes[i];
+                if (customerType == CustomerType.Line)
+                {
+                    AddLineCustomer();
+                }
+                else if (customerType == CustomerType.Table)
+                {
+                    AddTabelCustomer();
+                }
+            }
+            m_waveQue.RemoveAt(0);
+            StartCoroutine(HelperWait.ActionAfterWait(m_timeBetweenWaves, SpawnWave));
+        }
+        else
+        {
+            m_spawningWave = false;
+        }
+    }
+
+    //Todo implement that it will run this method if the restaurant is empty
+    //This is for if the player is fast and can keep up so the restaurant keeps having customers
+    private void AddRandomCustomer()
+    {
+        if (!m_canSpawn)
+        {
+            return;
+        }
+
         //Randomize which customer type will come 0 = line customer 1 = tabel customer
         int random = Random.Range(0, 2);
 
@@ -40,8 +102,6 @@ public class CustomerManager : MonoBehaviour
                 AddLineCustomer();
             }
         }
-
-        StartCoroutine(WaitForNextCustomer());
     }
 
     private bool AddTabelCustomer()
@@ -87,8 +147,11 @@ public class CustomerManager : MonoBehaviour
         int spawnIndex = Random.Range(0, m_spawnpoints.Length);
         Vector3 newCustomerSpawn = m_spawnpoints[spawnIndex].position;
         CustomerController newCustomer = Instantiate(m_customerControllerPrefab, newCustomerSpawn, Quaternion.identity);
+        m_currentActiveCustomerCount++;
+
         Vector3 customerWalkTo = m_customerLines.GetSpot(newCustomer);
         newCustomer.SetWalkingPoint(customerWalkTo);
+        newCustomer.DoneAction = RemoveCustomer;
 
         //For line customers we are going to have two objects 
         List<PickupObject> pickupObjects = m_pickupObjects.ToList();
@@ -112,15 +175,10 @@ public class CustomerManager : MonoBehaviour
         }
 
         CustomerController newCustomer = Instantiate(m_customerControllerPrefab, spawnpoint, Quaternion.identity);
+        m_currentActiveCustomerCount++;
+
         tabel.AddCustomerToSpot(newCustomer, spawnIndex);
         newCustomer.SetWalkingPoint(customerWalkTo, tabel);
-    }
-
-    IEnumerator WaitForNextCustomer()
-    {
-        float waitTime = Random.Range(m_randomWaitTime.x, m_randomWaitTime.y);
-        yield return new WaitForSeconds(waitTime);
-
-        AddCustomer();
+        newCustomer.DoneAction = RemoveCustomer;
     }
 }

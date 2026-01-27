@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class CustomerLines : MonoBehaviour
 {
+    [SerializeField] private LevelManager m_levelManager;
+
     [SerializeField] private Transform[] m_line1Spots;
     [SerializeField] private Transform[] m_line2Spots;
     [SerializeField] private Transform[] m_line3Spots;
@@ -51,7 +53,7 @@ public class CustomerLines : MonoBehaviour
         {
             return false;
         }
-        bool customerDone = customerLine[0].Pay();
+        bool customerDone = customerLine[0].Pay(m_levelManager);
 
         if (customerDone)
         {
