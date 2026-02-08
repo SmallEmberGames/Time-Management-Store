@@ -14,6 +14,7 @@ public class CustomerManager : MonoBehaviour
 
     [SerializeField] private float m_timeBetweenTableCustomersSpawn;
     [SerializeField] private float m_timeBetweenWaves;
+    [SerializeField] private float m_spawnRandomAfter;
 
     private List<CustomerWave> m_waveQue = new List<CustomerWave>();
     private int m_currentActiveCustomerCount;
@@ -42,9 +43,16 @@ public class CustomerManager : MonoBehaviour
     public void RemoveCustomer()
     {
         m_currentActiveCustomerCount--;
-        if (!m_canSpawn && m_currentActiveCustomerCount <= 0)
+        if (m_currentActiveCustomerCount <= 0)
         {
-            Debug.Log("End level");
+            if (!m_canSpawn)
+            {
+                Debug.Log("End level");
+            }
+            else
+            {
+                StartCoroutine(WaitForRandom());
+            }
         }
     }
 
@@ -180,5 +188,15 @@ public class CustomerManager : MonoBehaviour
         tabel.AddCustomerToSpot(newCustomer, spawnIndex);
         newCustomer.SetWalkingPoint(customerWalkTo, tabel);
         newCustomer.DoneAction = RemoveCustomer;
+    }
+
+    IEnumerator WaitForRandom()
+    {
+        yield return new WaitForSeconds(m_spawnRandomAfter);
+
+        if (!m_spawningWave)
+        {
+            AddRandomCustomer();
+        }
     }
 }

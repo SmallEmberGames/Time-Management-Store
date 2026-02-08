@@ -4377,6 +4377,7 @@ MonoBehaviour:
   m_customerTabels: {fileID: 48768252}
   m_timeBetweenTableCustomersSpawn: 0.5
   m_timeBetweenWaves: 1
+  m_spawnRandomAfter: 2
 --- !u!4 &2022431935
 Transform:
   m_ObjectHideFlags: 0
