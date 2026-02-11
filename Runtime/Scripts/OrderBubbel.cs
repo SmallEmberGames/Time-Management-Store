@@ -101,7 +101,8 @@ public class OrderBubbel : MonoBehaviour
     public void SetToPayForTableOrder()
     {
         m_orderComplete = true;
-        m_orderObject.texture = m_payTexture;
-        m_orderObject.color = m_payColor;
+        RawImage pay = Instantiate(m_orderObject, m_gridLayout.transform);
+        pay.texture = m_payTexture;
+        pay.color = m_payColor;
     }
 }
