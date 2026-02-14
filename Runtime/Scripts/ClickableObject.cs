@@ -13,11 +13,6 @@ public class ClickableObject : MonoBehaviour
         }
     }
 
-    public void IsClicked()
-    {
-        Debug.Log($"{gameObject.name} | Is clicked");
-    }
-
     public virtual void Action(PlayerMovement playerMovement)
     {
         playerMovement.StartWalking();
