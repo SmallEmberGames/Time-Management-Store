@@ -43,6 +43,19 @@ public class LevelWindow : EditorWindow
         {
             AddChapter(ref gameData);
         }
+
+        float yPosition = 100f;
+        float offset = 10f;
+        float buttonHeight = 30f;
+        for (int i = 0; i < gameData.chapters.Count; i++)
+        {
+            ChapterData chapter = gameData.chapters[i];
+            if (GUI.Button(new Rect(10, yPosition, 100, buttonHeight), chapter.name))
+            {
+                Debug.Log($"Open chapter {i}");
+            }
+            yPosition += buttonHeight + offset;
+        }
     }
 
     #region Chapters
