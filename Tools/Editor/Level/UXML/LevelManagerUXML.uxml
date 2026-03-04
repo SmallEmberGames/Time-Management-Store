@@ -1,0 +1,17 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <Style src="project://database/Packages/com.smallembergames.timemanagementstore/Tools/Editor/Level/UXML/StyleSheet.uss?fileID=7433441132597879392&amp;guid=0d38e78549fa689469851f15ed9bb28d&amp;type=3#StyleSheet" />
+    <ui:Label text="Chapter" name="Title" class="header1" />
+    <ui:Label text="Chapter settings" name="Header" class="header" />
+    <ui:Foldout text="Foldout">
+        <ui:VisualElement style="flex-grow: 1;">
+            <ui:Label text="Label" />
+            <ui:FloatField label="Level Time" value="0" binding-path="levelTime" name="levelTime" />
+        </ui:VisualElement>
+    </ui:Foldout>
+    <ui:Label text="Levels" name="LevelsHeader" class="header" />
+    <ui:Label text="All the levels in this chapter" name="LevelsSubtitle" class="subTitle" />
+    <ui:IMGUIContainer name="LevelContainer" style="width: 100%;">
+        <ui:Button text="+" name="AddChapter" enabled="true" class="AddButton" />
+        <ui:ListView name="Levels" class="borderbox" />
+    </ui:IMGUIContainer>
+</ui:UXML>
