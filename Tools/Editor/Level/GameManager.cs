@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -10,10 +11,14 @@ public class GameManager : EditorWindow
     [SerializeField]
     private VisualTreeAsset _uxml;
 
+    [SerializeField]
+    private VisualTreeAsset _uxmlChapter;
+
     private static string headFolderName = "TestFolder";
     private static string chaptersFolderName = "Chapters";
     private static string gameDataName = "GameData.asset";
-    private static string chapterName = "Chapter_";
+    private static string chapterName = "Chapter";
+    private static string levelName = "Level";
 
     private Button _createButton;
     private Button _addButton;
@@ -75,43 +80,161 @@ public class GameManager : EditorWindow
         _chapters.visible = exists;
     }
 
+    #region ADD
     private void AddChapter()
     {
         //Create new chapter and add it to the list in gamedata
-        int newChapterIndex = _gameData.chapters.Count + 1;
-        string chapterPath = $"Assets/{headFolderName}/{chaptersFolderName}/{chapterName}{newChapterIndex}.asset";
+        int newChapterIndex = _gameData.chapters.Count;
+        string chapterPath = $"Assets/{headFolderName}/{chaptersFolderName}/{newChapterIndex}_{chapterName}.asset";
         AssetDatabase.CreateAsset(ScriptableObject.CreateInstance<ChapterData>(), chapterPath);
         AssetDatabase.SaveAssets();
 
         ChapterData newChapter = AssetDatabase.LoadAssetAtPath<ChapterData>(chapterPath);
         _gameData.chapters.Add(newChapter);
+
+        CreateChapterFolder($"{newChapterIndex}_{chapterName}");
     }
+
+    public static void AddLevel(ChapterData chapterData)
+    {
+        CreateChapterFolder(chapterData.name);
+
+        int newLevelIndex = chapterData.levels.Count + 1;
+        string levelPath = $"Assets/{headFolderName}/{chaptersFolderName}/{chapterData.name}/{newLevelIndex}_{levelName}.asset";
+        AssetDatabase.CreateAsset(ScriptableObject.CreateInstance<LevelData>(), levelPath);
+        AssetDatabase.SaveAssets();
+
+        LevelData newLevel = AssetDatabase.LoadAssetAtPath<LevelData>(levelPath);
+        chapterData.levels.Add(newLevel);
+    }
+
+    private static void CreateChapterFolder(string chapterName)
+    {
+        //Add folder for the levels to get into
+        if (!AssetDatabase.IsValidFolder($"Assets/{headFolderName}/{chaptersFolderName}/{chapterName}"))
+        {
+            AssetDatabase.CreateFolder($"Assets/{headFolderName}/{chaptersFolderName}", chapterName);
+        }
+    }
+    #endregion
 
     private void RegisterChangeTracking()
     {
         var _serializedConfigs = new SerializedObject(_gameData);
         rootVisualElement.TrackSerializedObjectValue(_serializedConfigs, _ =>
         {
-            // New chapter could be added
-            Chapters();
-            _chapters.Rebuild();
+            ForceUpdateGameManager();
         });
     }
 
-    private void BindItem(ChapterInfoVisualElement elem, int i)
+    private void ForceUpdateGameManager()
+    {
+        Chapters();
+        _chapters.Rebuild();
+    }
+
+    private void BindItem(VisualElement elem, int i)
     {
         var label = elem.Q<Label>(name: "nameLabel");
-        var button = elem.Q<Button>();
+        var button = elem.Q<Button>(name: "button");
+        var deleteButton = elem.Q<Button>(name: "delete");
 
         ChapterData chapterData = _gameData.chapters[i];
+        if (chapterData == null) //If it has been deleted outside of out tool 
+        {
+            _gameData.chapters.RemoveAt(i);
+            _chapters.Remove(elem);
+            return;
+        }
+
         label.text = chapterData.name;
         button.text = $"Levels: {chapterData.levels.Count}";
 
         button.clicked += () =>
         {
-            //LevelManager.Open();
-            LevelManager.OpenWithData(chapterData);
+            LevelManager.OpenWithData(chapterData, i);
         };
+
+        deleteButton.clicked += () =>
+        {
+            bool wantToDelete = EditorUtility.DisplayDialog($"Remove {chapterData.name}",
+                $"Are you sure you want to remove {chapterData.name}", "Agree", "Cancel");
+
+            if (wantToDelete)
+            {
+                Debug.Log($"Want to delete {chapterData.name}");
+                RemoveChapter(chapterData, i);
+            }
+           /* EditorPopup.Open($"Remove {chapterData.name}",
+                $"Are you sure you want to remove {chapterData.name}", i);*/
+        };
+    }
+
+    private void RemoveChapter(ChapterData chapterData, int i)
+    {
+        //Remove folder
+        string folderPath = $"Assets/{headFolderName}/{chaptersFolderName}/{chapterData.name}";
+        if (AssetDatabase.IsValidFolder(folderPath))
+        {
+            AssetDatabase.DeleteAsset(folderPath);
+        }
+
+        //Remove object
+        if (AssetDatabase.AssetPathExists($"{folderPath}.asset"))
+        {
+            AssetDatabase.DeleteAsset($"{folderPath}.asset");
+        }
+
+        //Remove from list
+        _gameData.chapters.RemoveAt(i);
+
+        //Rename all that came before 
+        //So if this is 3 we should rename 4 and up
+        if (i < _gameData.chapters.Count - 1)
+        {
+            return;
+        }
+
+        for (int c = i; c < _gameData.chapters.Count; c++)
+        {
+            string name = _gameData.chapters[c].name;
+            name = name.Replace($"{c + 1}", $"{c}");
+            ChangeChapterName(_gameData.chapters[c], name);
+        }
+    }
+
+    public static ChapterData ChangeChapterName(ChapterData chapterData, string newName)
+    {
+        //change folder name
+        string folderPath = $"Assets/{headFolderName}/{chaptersFolderName}/{chapterData.name}";
+        if (AssetDatabase.IsValidFolder(folderPath))
+        {
+            AssetDatabase.RenameAsset(folderPath, newName);
+        }
+
+        //change object name
+        if (AssetDatabase.AssetPathExists($"{folderPath}.asset"))
+        {
+            AssetDatabase.RenameAsset($"{folderPath}.asset", $"{newName}.asset");
+        }
+
+        //Set data
+        string newPath = $"Assets/{headFolderName}/{chaptersFolderName}/{newName}.asset";
+        ChapterData newChapter = AssetDatabase.LoadAssetAtPath<ChapterData>(newPath);
+        return newChapter;
+    }
+
+    public static void RemoveLevel(ChapterData chapterData, int i)
+    {
+        //Remove level object
+        string levelAssetPath = $"Assets/{headFolderName}/{chaptersFolderName}/{chapterData.name}/{chapterData.levels[i].name}.asset";
+        if (AssetDatabase.AssetPathExists(levelAssetPath))
+        {
+            AssetDatabase.DeleteAsset(levelAssetPath);
+        }
+
+        //Remove from list
+        chapterData.levels.RemoveAt(i);
     }
 
     private void Chapters()
@@ -121,20 +244,33 @@ public class GameManager : EditorWindow
         // The ListView calls this to add visible items to the scroller.
         Func<VisualElement> makeItem = () =>
         {
-            var chapterInfoVisualElement = new ChapterInfoVisualElement();
-
-            var label = chapterInfoVisualElement.Q<Label>(name: "header Label");
+            var chapterInfoVisualElement = new VisualElement();
+            if (_uxmlChapter != null)
+            {
+                _uxmlChapter.CloneTree(chapterInfoVisualElement);
+            }
+            else
+            {
+                Debug.LogWarning($"Chapter UXML not assigned to {GetType().Name}");
+            }
 
             return chapterInfoVisualElement;
         };
 
-        Action<VisualElement, int> bindItem = (e, i) => BindItem(e as ChapterInfoVisualElement, i);
+        Action<VisualElement, int> bindItem = (e, i) => BindItem(e, i);
 
-        _chapters.fixedItemHeight = 55;
+        _chapters.fixedItemHeight = 100;
         _chapters.makeItem = makeItem;
         _chapters.bindItem = bindItem;
         _chapters.itemsSource = chapters;
         _chapters.selectionType = SelectionType.Multiple;
+    }
+
+    public static void UpdateChapters()
+    {
+        GameManager window = GetWindow<GameManager>();
+        window.ForceUpdateGameManager();
+
     }
 
     #region Create / check if exists
@@ -178,32 +314,4 @@ public class GameManager : EditorWindow
         AssetDatabase.SaveAssets();
     }
     #endregion
-
-    public class ChapterInfoVisualElement : VisualElement
-    {
-        public ChapterInfoVisualElement()
-        {
-            var root = new VisualElement();
-
-            root.style.paddingTop = 3f;
-            root.style.paddingRight = 0f;
-            root.style.paddingBottom = 15f;
-            root.style.paddingLeft = 3f;
-            root.style.borderBottomColor = Color.gray;
-            root.style.borderBottomWidth = 1f;
-            root.style.position = Position.Relative;
-            var nameLabel = new Label() { name = "nameLabel" };
-            nameLabel.style.fontSize = 14f;
-            var levelContainer = new Button();
-            levelContainer.style.flexDirection = FlexDirection.Row;
-            levelContainer.style.paddingLeft = 15f;
-            levelContainer.style.paddingRight = 15f;
-            levelContainer.style.paddingTop = 1f;
-            levelContainer.text = "Levels";
-
-            root.Add(nameLabel);
-            root.Add(levelContainer);
-            Add(root);
-        }
-    }
 }

@@ -1,0 +1,8 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <Style src="project://database/Packages/com.smallembergames.timemanagementstore/Tools/Editor/Level/UXML/StyleSheet.uss?fileID=7433441132597879392&amp;guid=0d38e78549fa689469851f15ed9bb28d&amp;type=3#StyleSheet" />
+    <ui:VisualElement name="Level" class="UnderLine" style="flex-grow: 1;">
+        <ui:Label text="Level" name="nameLabel" class="header1" style="margin-right: 13%;" />
+        <ui:Button text="-" name="delete" style="margin-left: 85%; margin-top: auto; transform-origin: left top; justify-content: flex-end; top: 0; position: absolute; width: 44px; margin-right: 0; background-size: 100% 100%; -unity-text-outline-width: 0;" />
+        <ui:Button text="Button" name="button" />
+    </ui:VisualElement>
+</ui:UXML>

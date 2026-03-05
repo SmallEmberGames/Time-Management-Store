@@ -66,3 +66,22 @@
     -unity-font-style: bold;
     font-size: 20px;
 }
+
+.UnderLine {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    margin-right: 5px;
+    margin-left: 5px;
+    border-top-width: 0;
+    border-right-width: 0;
+    border-bottom-width: 3px;
+    border-left-width: 0;
+    border-left-color: black;
+    border-right-color: black;
+    border-top-color: black;
+    border-bottom-color: black;
+    padding-top: 5px;
+    padding-right: 5px;
+    padding-bottom: 5px;
+    padding-left: 5px;
+}

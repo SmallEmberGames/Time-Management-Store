@@ -4,14 +4,15 @@
     <ui:Label text="Chapter settings" name="Header" class="header" />
     <ui:Foldout text="Foldout">
         <ui:VisualElement style="flex-grow: 1;">
-            <ui:Label text="Label" />
+            <ui:TextField label="Chapter name" placeholder-text="filler text" password="false" name="chapterName" />
+            <ui:Button text="Set new chapter name" name="setNewChapterName" enable-rich-text="false" />
             <ui:FloatField label="Level Time" value="0" binding-path="levelTime" name="levelTime" />
         </ui:VisualElement>
     </ui:Foldout>
     <ui:Label text="Levels" name="LevelsHeader" class="header" />
     <ui:Label text="All the levels in this chapter" name="LevelsSubtitle" class="subTitle" />
     <ui:IMGUIContainer name="LevelContainer" style="width: 100%;">
-        <ui:Button text="+" name="AddChapter" enabled="true" class="AddButton" />
+        <ui:Button text="+" name="AddLevel" enabled="true" class="AddButton" />
         <ui:ListView name="Levels" class="borderbox" />
     </ui:IMGUIContainer>
 </ui:UXML>
